@@ -5,4 +5,4 @@ Created for the NASA Dark Side of the Jam, a 48 hour game jam for space themed g
 
 HTML/Javascript
 
-It can be played here: http://www.davidaaronpierce.com/buildingmars/
+It can be played here: https://davidaaronpierce.com/buildingmars/
