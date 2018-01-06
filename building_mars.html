@@ -14,728 +14,687 @@ Open source--go ahead and check out the code. Warning: this is my first serious 
 -->
 
 <head>
-<meta charset="utf-8">
-<title>Building Mars</title>
+	<meta charset="utf-8">
+	<title>Building Mars</title>
 
-<style type="text/css">
+	<style type="text/css">
+		html {
+			min-height: 100%;
+			background: #545454;
+			/* Old browsers */
+			background: -moz-linear-gradient(top, #545454 0%, #0e0e0e 100%);
+			/* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #545454), color-stop(100%, #0e0e0e));
+			/* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top, #545454 0%, #0e0e0e 100%);
+			/* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top, #545454 0%, #0e0e0e 100%);
+			/* Opera 11.10+ */
+			background: -ms-linear-gradient(top, #545454 0%, #0e0e0e 100%);
+			/* IE10+ */
+			background: linear-gradient(to bottom, #545454 0%, #0e0e0e 100%);
+			/* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#545454', endColorstr='#0e0e0e', GradientType=0);
+			/* IE6-9 */
+		}
 
-html
-{
-	min-height: 100%;
-	background: #545454; /* Old browsers */
-	background: -moz-linear-gradient(top,  #545454 0%, #0e0e0e 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#545454), color-stop(100%,#0e0e0e)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top,  #545454 0%,#0e0e0e 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top,  #545454 0%,#0e0e0e 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(top,  #545454 0%,#0e0e0e 100%); /* IE10+ */
-	background: linear-gradient(to bottom,  #545454 0%,#0e0e0e 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#545454', endColorstr='#0e0e0e',GradientType=0 ); /* IE6-9 */
-}
+		body {
+			margin: 0px;
+			padding: 0px;
+		}
 
-body
-{
-	margin: 0px;
-	padding: 0px;
-}
+		button {
+			position: relative;
+			float: left;
+			width: 140px;
+			height: 90px;
+			font-family: Arial, sans-serif;
+			font-size: 16pt;
+		}
 
-button
-{
-	position: relative;
-	float: left;
-	width: 140px;
-	height: 90px;
-	font-family: Arial, sans-serif;
-	font-size: 16pt;
-}
+		#container {
+			position: relative;
+			width: 940px;
+		}
 
-#container
-{
-	position: relative;
-	width: 940px;
-}
+		#stage {
+			position: relative;
+			float: left;
+			width: 640px;
+			height: 640px;
+			background: url("images/map2.jpg");
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+		}
 
-#stage
-{
-	position: relative;
-	float: left;
-	width: 640px;
-	height: 640px;
-	background: url("images/map2.jpg");
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
-}
+		#stageover {
+			z-index: 1;
+			display: none;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 640px;
+			height: 640px;
+			background: #000;
+			-webkit-border-radius: 10px;
+			-moz-border-radius: 10px;
+			border-radius: 10px;
+			zoom: 1;
+			filter: alpha(opacity=50);
+			opacity: 0.5;
+		}
 
-#stageover
-{
-	z-index: 1;
-	display: none;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 640px;
-	height: 640px;
-	background: #000;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
-	zoom: 1;
-	filter: alpha(opacity=50);
-	opacity: 0.5;
-}
+		#hud {
+			position: relative;
+			display: block;
+			float: left;
+			width: 280px;
+			margin: 10px;
 
-#hud
-{
-	position: relative;
-	display: block;
-	float: left;
-	width: 280px;
-	margin: 10px;
-	
-}
+		}
 
-#output
-{
-	color: #ddd;
-	height: 300px;
-	font-family: Arial, sans-serif;
-	font-size: 16pt;
-}
+		#output {
+			color: #ddd;
+			height: 300px;
+			font-family: Arial, sans-serif;
+			font-size: 16pt;
+		}
 
-#cursor
-{
-	display: none;
-	position: absolute;
-	width: 64px;
-	height: 64px;
-	background: url("images/cursor.png");
-	-webkit-transition: all .2s ease-out;
-	-moz-transition: all .2s ease-out;
-	-o-transition: all .2s ease-out;
-	transition: all .2s ease-out;
-}
+		#cursor {
+			display: none;
+			position: absolute;
+			width: 64px;
+			height: 64px;
+			background: url("images/cursor.png");
+			-webkit-transition: all .2s ease-out;
+			-moz-transition: all .2s ease-out;
+			-o-transition: all .2s ease-out;
+			transition: all .2s ease-out;
+		}
 
-#title
-{
-	z-index: 2;
-	display: block;
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin-top: 3000px;
-	margin-left: 100px;
-	font-family: Arial, sans-serif;
-	font-size: 80px;
-	text-align: center;
-	letter-spacing: -4px;
-	color: #fff;
-	text-shadow: 2px 2px 5px #000000;
-    filter: dropshadow(color=#000000, offx=2, offy=2);
-	-webkit-transition: all .5s ease-out;
-	-moz-transition: all .5s ease-out;
-	-o-transition: all .5s ease-out;
-	transition: all .5s ease-out;
-}
+		#title {
+			z-index: 2;
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			margin-top: 3000px;
+			margin-left: 100px;
+			font-family: Arial, sans-serif;
+			font-size: 80px;
+			text-align: center;
+			letter-spacing: -4px;
+			color: #fff;
+			text-shadow: 2px 2px 5px #000000;
+			filter: dropshadow(color=#000000, offx=2, offy=2);
+			-webkit-transition: all .5s ease-out;
+			-moz-transition: all .5s ease-out;
+			-o-transition: all .5s ease-out;
+			transition: all .5s ease-out;
+		}
 
-.cell
-{
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
-	border-radius: 8px;
-	display: block;
-	position: absolute;
-	width: 64px;
-	height: 64px;
-	-webkit-transition: background-color .2s ease;
-	-moz-transition: background-color .2s ease;
-	-o-transition: background-color .2s ease;
-	transition: background-color .2s ease;
-}
+		.cell {
+			-webkit-border-radius: 8px;
+			-moz-border-radius: 8px;
+			border-radius: 8px;
+			display: block;
+			position: absolute;
+			width: 64px;
+			height: 64px;
+			-webkit-transition: background-color .2s ease;
+			-moz-transition: background-color .2s ease;
+			-o-transition: background-color .2s ease;
+			transition: background-color .2s ease;
+		}
 
-.cell:hover
-{
-	background-color: rgba(0,102,255,.7);
-}
+		.cell:hover {
+			background-color: rgba(0, 102, 255, .7);
+		}
 
-.preload-images
-{
-	background: url("images/cursor.png") no-repeat -9999px -9999px;
-	background: url("images/greenhouse.png") no-repeat -9999px -9999px,
-	url("images/mine.png") no-repeat -9999px -9999px,
-	url("images/solar.png") no-repeat -9999px -9999px,
-	url("images/water.png") no-repeat -9999px -9999px,
-}
-</style>
+		.preload-images {
+			background: url("images/cursor.png") no-repeat -9999px -9999px;
+			background: url("images/greenhouse.png") no-repeat -9999px -9999px,
+			url("images/mine.png") no-repeat -9999px -9999px,
+			url("images/solar.png") no-repeat -9999px -9999px,
+			url("images/water.png") no-repeat -9999px -9999px,
+		}
+	</style>
 </head>
 
 <body class="preload-images">
 
-<div id="container">
-	<div id="stageover"></div>
-	<div id="stage" onclick="mouseClick(event)"></div>
-	<div id="cursor"></div>
-	<div id="hud">
-		<p id="output"></p>
-		<button id="btnScan" onclick="scan()">Scan</button>
-		<button id="btnBuild"></button>
-		<button id="btnWater" onclick="buildWater()">Water Pumps</button>
-		<button id="btnSolar" onclick="buildSolar()">Solar Array</button>
-		<button id="btnGreen" onclick="buildGreen()">Greenhouse</button>
-		<button id="btnMine" onclick="buildMine()">Mine</button>
+	<div id="container">
+		<div id="stageover"></div>
+		<div id="stage" onclick="mouseClick(event)"></div>
+		<div id="cursor"></div>
+		<div id="hud">
+			<p id="output"></p>
+			<button id="btnScan" onclick="scan()">Scan</button>
+			<button id="btnBuild"></button>
+			<button id="btnWater" onclick="buildWater()">Water Pumps</button>
+			<button id="btnSolar" onclick="buildSolar()">Solar Array</button>
+			<button id="btnGreen" onclick="buildGreen()">Greenhouse</button>
+			<button id="btnMine" onclick="buildMine()">Mine</button>
+		</div>
 	</div>
-</div>
 
-<h1 id="title"></h1>
+	<h1 id="title"></h1>
 </body>
 
 <script type="text/javascript">
 
-// Get a reference to the stage and output
-var stage = document.querySelector("#stage");
-var cursor = document.querySelector("#cursor");
-var output = document.querySelector("#output");
-var stageover = document.querySelector("#stageover");
-var title = document.querySelector("#title");
+	// Get a reference to the stage and output
+	var stage = document.querySelector("#stage");
+	var cursor = document.querySelector("#cursor");
+	var output = document.querySelector("#output");
+	var stageover = document.querySelector("#stageover");
+	var title = document.querySelector("#title");
 
-// Disable buttons at start
-disableButtons();
-
-// Decide a background map
-switch (Math.floor(Math.random() * 3))
-{
-	case 0:
-		stage.style.background = "url('images/map.jpg')";
-		break;
-		
-	case 1:
-		// map2.jpg is default map, keep it
-		break;
-	
-	case 2:
-		stage.style.background = "url('images/map3.jpg')";
-		break;
-}
-
-// Water/ore 2D array map
-// 0,1,2,3,4 = water low/high   5,6,7,8,9 = ore low/high
-waterMap = new Array(10);
-for (var i=0; i < 10 ; i++)
-{
-    waterMap[i] = new Array(10);
-}
-// Loop through both dimensions and make every value random
-for (var i = 0; i < waterMap.length; ++i)
-{
-    entry = waterMap[i];
-    for (var j = 0; j < entry.length; ++j)
-	{
-        waterMap[i][j] = Math.floor(Math.random() * 10);
-    }
-}
-
-// Map of buildings 2D array
-buildMap = new Array(10);
-for (var i=0; i < 10 ; i++)
-{
-    buildMap[i] = new Array(10);
-}
-// Loop through both dimensions and make every value 0
-for (var i = 0; i < buildMap.length; ++i)
-{
-    entry = buildMap[i];
-    for (j = 0; j < entry.length; ++j)
-	{
-        buildMap[i][j] = 0;
-    }
-}
-
-// Map constants describe tiles
-var GROUND = 0;
-var WATER_PUMP = 1;
-var SOLAR_ARRAY = 2;
-var GREENHOUSE = 3;
-var MINE = 4;
-var SCANNED = 5;
-var SIZE = 64; // tile px size
-
-// Number of rows and columns
-var ROWS = waterMap.length;
-var COLUMNS = waterMap[0].length;
-
-// Position of the cursor in grid units
-var selectRow;
-var selectCol;
-
-// Player stats
-// Abilities
-var scans = 0;
-var builds = 0;
-
-// Initial resources
-var energy = 0;
-var food = 10;
-var water = 10;
-var ore = 3;
-
-
-// Vital scores
-var colonists = 6; //could become an array to name them
-var sun = 1.0; //0-2 multiplyer for sun visibility affecting solar arrays, greenhouse
-var radiation = 0; //hidden stat: at end of round dice roll will determine death and 1 colonist will be randomly picked
-var luck = 50; //random number 0-99 that will dice roll weird stuff at start of a round, as game goes longer, weird stuff is more likely to happen
-var phase = 1; //count phases
-
-var gameMessage;
-
-renderMap();
-
-// Opening title
-showTitle("Building Mars");
-
-// Starts the first phase
-startPhase(1);
-
-// When clicking a cell it gets the cursor
-function mouseClick(event){
-	
-    var posX = event.pageX - document.getElementById("container").offsetLeft;
-    var posY = event.pageY - document.getElementById("container").offsetTop;
-	
-	// Get the row and column based on X/Y
-	if (posX >= 640) { posX = 639; } // keep it in the map boundry!
-	if (posY >= 640) { posY = 639; }
-	selectCol = Math.floor(posX / SIZE);
-	selectRow = Math.floor(posY / SIZE);
-	console.log("("+posX +", "+posY+") "+ selectCol +", "+ selectRow);
-	
-	// Move the cursor
-	cursor.style.display = "block";
-	cursor.style.left = selectCol * SIZE + "px";
-	cursor.style.top = selectRow * SIZE + "px";
-	
-	// Display info about the current tile
-	// Use selectRow selectCol
-	switch (buildMap[selectRow][selectCol])
-	{
-		case GROUND:
-			gameMessage = "You may send a survey robot or build here.";
-			
-			// Enable buttons for scanning/building
-			enableButtons();
-			
-			break;
-		
-		
-		case WATER_PUMP:
-			disableButtons()
-			// Show status
-			gameMessage = "This water pump produces "+ calcWater(selectRow, selectCol) +" units each phase.";
-			break;
-			
-		case SOLAR_ARRAY:
-			disableButtons()
-			// Show status
-			gameMessage = "This solar array generates enough to power "+ calcSolar() +" facilities.";
-			break;
-			
-		case GREENHOUSE:
-			disableButtons()
-			// Show status
-			gameMessage = "This greenhouse produces food for "+ calcFood() +" people each phase.";
-			break;
-			
-		case MINE:
-			disableButtons()
-			// Show status
-			gameMessage = "This mine produces ore for "+ calcMine(selectRow, selectCol) +" new buildings each phase.";
-			break;
-		
-		case SCANNED:
-			enableButtons();
-			// Already scanned, just replay it
-			scan();
-			break;
-	}
-	
-	renderHud();
-	
-} // end mouseClick()
-
-// Button functions
-function scan()
-{
-	// Check if you can scan anymore
-	if (scans > 0 || buildMap[selectRow][selectCol] === SCANNED )
-	{
-		document.getElementById("btnScan").disabled = true;
-		// 0,1,2,3,4 = water low/high 5,6,7,8,9 = ore low/high
-		if (waterMap[selectRow][selectCol] < 1 ) { gameMessage = "Almost no water here.";}
-		else if (waterMap[selectRow][selectCol] < 3 ) {	gameMessage = "A little water here.";}
-		else if (waterMap[selectRow][selectCol] < 5 ) {	gameMessage = "Lots of water here! Build a water pump!";}
-		else if (waterMap[selectRow][selectCol] < 6 ) {	gameMessage = "Almost no ore here.";}
-		else if (waterMap[selectRow][selectCol] < 8 ) {	gameMessage = "Some metal we can use here.";}
-		else { gameMessage = "Great source of metal here! Good place for a mine.";}
-		
-		// Check if not already scanned, mark as scanned
-		if ( buildMap[selectRow][selectCol] != SCANNED )
-		{
-			buildMap[selectRow][selectCol] = SCANNED;
-			scans--;
-		}
-		
-		// Output!
-		console.log("Scan: "+ waterMap[selectRow][selectCol]);
-
-		renderHud();
-	}
-	else
-	{
-		gameMessage = "Need more energy to scan.";
-		renderHud();
-	}
-} // end scan()
-
-function buildWater()
-{
-	// Check if there's ore left
-	if (haveOre())
-	{
-		disableButtons();
-		
-		buildMap[selectRow][selectCol] = WATER_PUMP;
-		ore--;
-		builds--;
-
-		// Output!
-		gameMessage = "Water pumps built";
-		
-		getResources();
-		renderMap();
-	}
-	renderHud();
-
-} // end buildWater()
-
-function buildSolar()
-{
-	// Check if there's ore left
-	if (haveOre())
-	{
-		disableButtons();
-		
-		buildMap[selectRow][selectCol] = SOLAR_ARRAY;
-		ore--;
-		builds--;
-
-		// Output!
-		gameMessage = "Solar array built";
-		
-		getResources();
-		renderMap();
-	}
-	renderHud();
-	
-} // end buildSolar()
-
-function buildGreen()
-{
-	// Check if there's ore left
-	if (haveOre())
-	{
-		disableButtons();
-		
-		buildMap[selectRow][selectCol] = GREENHOUSE;
-		ore--;
-		builds--;
-
-		// Output!
-		console.log("Greenhouse built");
-		
-		getResources();
-		renderMap();
-	}
-	renderHud();
-	
-} // end buildGreen()
-
-function buildMine()
-{
+	// Disable buttons at start
 	disableButtons();
-	
-	buildMap[selectRow][selectCol] = MINE;
-	builds--;
 
-	// Output!
-	console.log("Mine built!");
-	
-	getResources();
-	renderMap();
-	renderHud();
-	
-} // end buildMine()
+	//
+	// CONSTANTS
+	//
+	// Map constants describe tiles
+	var GROUND = 0;
+	var WATER_PUMP = 1;
+	var SOLAR_ARRAY = 2;
+	var GREENHOUSE = 3;
+	var MINE = 4;
+	var SCANNED = 5;
+	var SIZE = 64; // tile px size
 
-function startPhase(aPhase)
-{
-	//This will go through the steps of iterating phase numbers
-	switch (aPhase)
-	{
+	// Number of rows and columns
+	var ROWS = 10;
+	var COLUMNS = 10;
+
+	// Decide a background map
+	switch (Math.floor(Math.random() * 3)) {
+		case 0:
+			stage.style.background = "url('images/map.jpg')";
+			break;
+
 		case 1:
-			scans = 10;
-			builds = 10;
-			gameMessage = "Newly arrived on Mars, we need food and water to survive. But we also need energy and base materials to sustain our colony."
-			renderHud();
-			
+			// map2.jpg is default map, keep it
+			break;
+
+		case 2:
+			stage.style.background = "url('images/map3.jpg')";
 			break;
 	}
-}
 
-// Refresh the map 
-function renderMap()
-{	
-	// Reset the map, first clear the img tiles of prev turn
-	if (stage.hasChildNodes())
-	{
-		for (var i = 0; i < ROWS * COLUMNS; i++)
-		{
-			stage.removeChild(stage.firstChild);
+	//
+	// GAME VARIABLES
+	//
+	// Position of the cursor in grid units
+	var selectRow;
+	var selectCol;
+
+	// Player stats
+	// Abilities
+	var scans = 0;
+	var builds = 0;
+
+	// Initial resources
+	var energy = 0;
+	var food = 10;
+	var water = 10;
+	var ore = 3;
+
+	// Vital scores
+	var colonists = 6; //could become an array to name them
+	var sun = 1.0; //0-2 multiplyer for sun visibility affecting solar arrays, greenhouse
+	var radiation = 0; //hidden stat: at end of round dice roll will determine death and 1 colonist will be randomly picked
+	var luck = 50; //random number 0-99 that will dice roll weird stuff at start of a round, as game goes longer, weird stuff is more likely to happen
+	var phase = 1; //count phases
+
+	var gameMessage;
+
+	var waterMap, buildMap;
+
+	//
+	// generateMaps()
+	//
+	function generateMaps() {
+		// Water/ore 2D array map
+		// 0,1,2,3,4 = water low/high   5,6,7,8,9 = ore low/high
+		waterMap = new Array(ROWS);
+		for (var i = 0; i < ROWS; i++) {
+			waterMap[i] = new Array(COLUMNS);
 		}
-	}
-	
-	// Render the next turn
-	for (var row = 0; row < ROWS; row++)
-	{
-		for (var column = 0; column < COLUMNS; column++)
-		{
-			// Create an img tag called cell
-			var cell = document.createElement("img");
-			
-			// Set its CSS class to "cell"
-			cell.setAttribute("class", "cell");
-			
-			// Add the img tag inside the #stage div
-			stage.appendChild(cell);
-			
-			// Find correct image for this cell
-			switch (buildMap[row][column])
-			{
-				
-				case GROUND:
-					cell.src = "images/blank.png";
-					break;
-				
-				case WATER_PUMP:
-					cell.src = "images/water.png";
-					break;
-				
-				case SOLAR_ARRAY:
-					cell.src = "images/solar.png";
-					break;
-					
-				case GREENHOUSE:
-					cell.src = "images/greenhouse.png";
-					break;
-				
-				case MINE:
-					cell.src = "images/mine.png";
-					break;
-				
-				case SCANNED:
-					cell.src = "images/blank.png";
-					break;
+		// Loop through both dimensions and make every value random
+		for (var i = 0; i < waterMap.length; ++i) {
+			entry = waterMap[i];
+			for (var j = 0; j < entry.length; ++j) {
+				waterMap[i][j] = Math.floor(Math.random() * 10);
 			}
-			
-			// Position the cell
-			cell.style.top = row * SIZE + "px";
-			cell.style.left = column * SIZE + "px";
 		}
-	}	
-} // end renderMap()
 
-function renderHud()
-{
-	// Update the HUD
-	output.innerHTML = gameMessage;
-	
-	// Display the player's stats, depending on the phase
-	output.innerHTML += "<br><br>Scans left this phase: "+ scans +"<br>Buildings left this phase: "+ builds;
-	
-	if (builds > 0)
-	{
-		output.innerHTML += "<br><br>Energy: "+ energy +" Food:"+ food +" Water: "+ water +" Ore: "+ ore;
-	}
-} // end renderHud()
-
-function calcWater(row, column)
-{
-	var w = waterMap[row][column];
-	
-	// Water ranges between 0-4, if higher it's ore insted
-	if ( w > 5 ) { return 0; }
-	else
-	{
-		return (w + 1) * 2;
-	}
-}
-
-function calcSolar()
-{
-	// Outputs 3 energy at regular sunlight (powers 3 facilities)
-	return Math.round(3 * sun);
-}
-
-function calcFood()
-{
-	// Produces 5 food at regular sunlight
-	return Math.round(5 * sun);
-}
-
-function calcMine(row, column)
-{
-	var m = waterMap[row][column];
-	
-	// Ore ranges between 5-9, if less it's water instead
-	if ( m < 5 ) { return 0; }
-	else
-	{
-		return m - 4;
-	}
-}
-
-function getResources()
-{
-	// Count resource buildings
-	var waterPumps = 0;
-	var solarArrays = 0;
-	var greenhouse = 0;
-	var mines = 0;
-	
-	// Use at end of phase to generate all the resources created
-	for (var row = 0; row < ROWS; row++)
-	{
-		for (var column = 0; column < COLUMNS; column++)
-		{
-			switch (buildMap[row][column])
-			{
-				
-				case GROUND:
-					break;
-				
-				case WATER_PUMP:
-					// Add a water pump to the count (for resource cost)
-					waterPumps++;
-					
-					water += calcWater(row, column);
-					
-					break;
-				
-				case SOLAR_ARRAY:
-					solarArrays++
-					
-					energy += calcSolar();
-					
-					break;
-					
-				case GREENHOUSE:
-					greenhouse++;
-					
-					food += calcFood();
-					break;
-				
-				case MINE:
-					mines++;
-					
-					ore += calcMine(row, column);
-					break;
-				
-				case SCANNED:
-					break;
+		// Map of buildings 2D array
+		buildMap = new Array(10);
+		for (var i = 0; i < 10; i++) {
+			buildMap[i] = new Array(10);
+		}
+		// Loop through both dimensions and make every value 0
+		for (var i = 0; i < buildMap.length; ++i) {
+			entry = buildMap[i];
+			for (j = 0; j < entry.length; ++j) {
+				buildMap[i][j] = 0;
 			}
 		}
 	}
-	
-	// Spent resources
-	water = water - ( colonists + greenhouse );
-	food = food - colonists;
-	energy = energy - ( waterPumps + greenhouse + mines );
-	
-	// Add scans per solar arrays
-	scans += solarArrays;
-	
-	// For smaller scope, determine end
-	if (builds < 1)
-	{
-		if (water > 0 && food > 0 && energy > 0){
-			showTitle("You have survived the mission!");
-			gameMessage = "We're at a point where we can generate enough food and water to last our mission! Great work!<br><br>You Win!";
+
+	generateMaps();
+	renderMap();
+
+	// Opening title
+	showTitle("Building Mars");
+
+	// Starts the first phase
+	startPhase(1);
+
+	// When clicking a cell it gets the cursor
+	function mouseClick(event) {
+
+		var posX = event.pageX - document.getElementById("container").offsetLeft;
+		var posY = event.pageY - document.getElementById("container").offsetTop;
+
+		// Get the row and column based on X/Y
+		if (posX >= 640) { posX = 639; } // keep it in the map boundry!
+		if (posY >= 640) { posY = 639; }
+		selectCol = Math.floor(posX / SIZE);
+		selectRow = Math.floor(posY / SIZE);
+		console.log("(" + posX + ", " + posY + ") " + selectCol + ", " + selectRow);
+
+		// Move the cursor
+		cursor.style.display = "block";
+		cursor.style.left = selectCol * SIZE + "px";
+		cursor.style.top = selectRow * SIZE + "px";
+
+		// Display info about the current tile
+		// Use selectRow selectCol
+		switch (buildMap[selectRow][selectCol]) {
+			case GROUND:
+				gameMessage = "You may send a survey robot or build here.";
+
+				// Enable buttons for scanning/building
+				enableButtons();
+
+				break;
+
+
+			case WATER_PUMP:
+				disableButtons()
+				// Show status
+				gameMessage = "This water pump produces " + calcWater(selectRow, selectCol) + " units each phase.";
+				break;
+
+			case SOLAR_ARRAY:
+				disableButtons()
+				// Show status
+				gameMessage = "This solar array generates enough to power " + calcSolar() + " facilities.";
+				break;
+
+			case GREENHOUSE:
+				disableButtons()
+				// Show status
+				gameMessage = "This greenhouse produces food for " + calcFood() + " people each phase.";
+				break;
+
+			case MINE:
+				disableButtons()
+				// Show status
+				gameMessage = "This mine produces ore for " + calcMine(selectRow, selectCol) + " new buildings each phase.";
+				break;
+
+			case SCANNED:
+				enableButtons();
+				// Already scanned, just replay it
+				scan();
+				break;
 		}
-		else if (water < 1 || food < 1 || energy < 1)
-		{
-			showTitle("Mission failed");
-			if (water < 1 && food < 1)
-			{
-				gameMessage = "Thirsty and starved, there is no hope for us...";
+
+		renderHud();
+
+	} // end mouseClick()
+
+	// Button functions
+	function scan() {
+		// Check if you can scan anymore
+		if (scans > 0 || buildMap[selectRow][selectCol] === SCANNED) {
+			document.getElementById("btnScan").disabled = true;
+			// 0,1,2,3,4 = water low/high 5,6,7,8,9 = ore low/high
+			if (waterMap[selectRow][selectCol] < 1) { gameMessage = "Almost no water here."; }
+			else if (waterMap[selectRow][selectCol] < 3) { gameMessage = "A little water here."; }
+			else if (waterMap[selectRow][selectCol] < 5) { gameMessage = "Lots of water here! Build a water pump!"; }
+			else if (waterMap[selectRow][selectCol] < 6) { gameMessage = "Almost no ore here."; }
+			else if (waterMap[selectRow][selectCol] < 8) { gameMessage = "Some metal we can use here."; }
+			else { gameMessage = "Great source of metal here! Good place for a mine."; }
+
+			// Check if not already scanned, mark as scanned
+			if (buildMap[selectRow][selectCol] != SCANNED) {
+				buildMap[selectRow][selectCol] = SCANNED;
+				scans--;
 			}
-			else if (water < 1)
-			{
-				gameMessage = "We won't survive these barren wastes any longer...";
-			}
-			else if (food < 1)
-			{
-				gameMessage = "So hungry, and our reserves won't last us...";
-			}
-			else
-			{
-				gameMessage = "There's not enough energy to power anything! We won't last like this...";
-			}
-			gameMessage += "<br><br>GAME OVER";
+
+			// Output!
+			console.log("Scan: " + waterMap[selectRow][selectCol]);
+
+			renderHud();
+		}
+		else {
+			gameMessage = "Need more energy to scan.";
+			renderHud();
+		}
+	} // end scan()
+
+	function buildWater() {
+		// Check if there's ore left
+		if (haveOre()) {
+			disableButtons();
+
+			buildMap[selectRow][selectCol] = WATER_PUMP;
+			ore--;
+			builds--;
+
+			// Output!
+			gameMessage = "Water pumps built";
+
+			getResources();
+			renderMap();
 		}
 		renderHud();
-		
-		stageover.style.display = "block";	
-	}	
-} // end resources()
 
-function haveOre()
-{
-	// Check if there's ore left
-	if (ore > 0) { return true;}
-	else { gameMessage = "We need ore from mining to build more.";}
-}
+	} // end buildWater()
 
-function showTitle(text)
-{
-	title.innerHTML = text;
-	
-	// Animate title
-	setTimeout(function() {	title.style.marginTop = 200 + "px";},100)
-	//title.style.marginTop = 200 + "px";
-	setTimeout(function() {	title.style.marginTop = -200 + "px";},2500);
-	
-	//Reset
-	title.style.display = "none";
-	title.style.marginTop = 3000 + "px";
-	title.style.display = "block";
-	
-} // end title()
+	function buildSolar() {
+		// Check if there's ore left
+		if (haveOre()) {
+			disableButtons();
 
-function enableButtons()
-{
-	document.getElementById("btnScan").disabled = false;
-	document.getElementById("btnBuild").disabled = false;
-	document.getElementById("btnWater").disabled = false;
-	document.getElementById("btnSolar").disabled = false;
-	document.getElementById("btnGreen").disabled = false;
-	document.getElementById("btnMine").disabled = false;
-}
+			buildMap[selectRow][selectCol] = SOLAR_ARRAY;
+			ore--;
+			builds--;
 
-function disableButtons()
-{
-	document.getElementById("btnScan").disabled = true;
-	document.getElementById("btnBuild").disabled = true;
-	document.getElementById("btnWater").disabled = true;
-	document.getElementById("btnSolar").disabled = true;
-	document.getElementById("btnGreen").disabled = true;
-	document.getElementById("btnMine").disabled = true;
-}
+			// Output!
+			gameMessage = "Solar array built";
+
+			getResources();
+			renderMap();
+		}
+		renderHud();
+
+	} // end buildSolar()
+
+	function buildGreen() {
+		// Check if there's ore left
+		if (haveOre()) {
+			disableButtons();
+
+			buildMap[selectRow][selectCol] = GREENHOUSE;
+			ore--;
+			builds--;
+
+			// Output!
+			console.log("Greenhouse built");
+
+			getResources();
+			renderMap();
+		}
+		renderHud();
+
+	} // end buildGreen()
+
+	function buildMine() {
+		disableButtons();
+
+		buildMap[selectRow][selectCol] = MINE;
+		builds--;
+
+		// Output!
+		console.log("Mine built!");
+
+		getResources();
+		renderMap();
+		renderHud();
+
+	} // end buildMine()
+
+	function startPhase(aPhase) {
+		//This will go through the steps of iterating phase numbers
+		switch (aPhase) {
+			case 1:
+				scans = 10;
+				builds = 10;
+				gameMessage = "Newly arrived on Mars, we need food and water to survive. But we also need energy and base materials to sustain our colony."
+				renderHud();
+
+				break;
+		}
+	}
+
+	// Refresh the map 
+	function renderMap() {
+		// Reset the map, first clear the img tiles of prev turn
+		if (stage.hasChildNodes()) {
+			for (var i = 0; i < ROWS * COLUMNS; i++) {
+				stage.removeChild(stage.firstChild);
+			}
+		}
+
+		// Render the next turn
+		for (var row = 0; row < ROWS; row++) {
+			for (var column = 0; column < COLUMNS; column++) {
+				// Create an img tag called cell
+				var cell = document.createElement("img");
+
+				// Set its CSS class to "cell"
+				cell.setAttribute("class", "cell");
+
+				// Add the img tag inside the #stage div
+				stage.appendChild(cell);
+
+				// Find correct image for this cell
+				switch (buildMap[row][column]) {
+
+					case GROUND:
+						cell.src = "images/blank.png";
+						break;
+
+					case WATER_PUMP:
+						cell.src = "images/water.png";
+						break;
+
+					case SOLAR_ARRAY:
+						cell.src = "images/solar.png";
+						break;
+
+					case GREENHOUSE:
+						cell.src = "images/greenhouse.png";
+						break;
+
+					case MINE:
+						cell.src = "images/mine.png";
+						break;
+
+					case SCANNED:
+						cell.src = "images/blank.png";
+						break;
+				}
+
+				// Position the cell
+				cell.style.top = row * SIZE + "px";
+				cell.style.left = column * SIZE + "px";
+			}
+		}
+	} // end renderMap()
+
+	function renderHud() {
+		// Update the HUD
+		output.innerHTML = gameMessage;
+
+		// Display the player's stats, depending on the phase
+		output.innerHTML += "<br><br>Scans left this phase: " + scans + "<br>Buildings left this phase: " + builds;
+
+		if (builds > 0) {
+			output.innerHTML += "<br><br>Energy: " + energy + " Food:" + food + " Water: " + water + " Ore: " + ore;
+		}
+	} // end renderHud()
+
+	function calcWater(row, column) {
+		var w = waterMap[row][column];
+
+		// Water ranges between 0-4, if higher it's ore insted
+		if (w > 5) { return 0; }
+		else {
+			return (w + 1) * 2;
+		}
+	}
+
+	function calcSolar() {
+		// Outputs 3 energy at regular sunlight (powers 3 facilities)
+		return Math.round(3 * sun);
+	}
+
+	function calcFood() {
+		// Produces 5 food at regular sunlight
+		return Math.round(5 * sun);
+	}
+
+	function calcMine(row, column) {
+		var m = waterMap[row][column];
+
+		// Ore ranges between 5-9, if less it's water instead
+		if (m < 5) { return 0; }
+		else {
+			return m - 4;
+		}
+	}
+
+	function getResources() {
+		// Count resource buildings
+		var waterPumps = 0;
+		var solarArrays = 0;
+		var greenhouse = 0;
+		var mines = 0;
+
+		// Use at end of phase to generate all the resources created
+		for (var row = 0; row < ROWS; row++) {
+			for (var column = 0; column < COLUMNS; column++) {
+				switch (buildMap[row][column]) {
+
+					case GROUND:
+						break;
+
+					case WATER_PUMP:
+						// Add a water pump to the count (for resource cost)
+						waterPumps++;
+
+						water += calcWater(row, column);
+
+						break;
+
+					case SOLAR_ARRAY:
+						solarArrays++
+
+						energy += calcSolar();
+
+						break;
+
+					case GREENHOUSE:
+						greenhouse++;
+
+						food += calcFood();
+						break;
+
+					case MINE:
+						mines++;
+
+						ore += calcMine(row, column);
+						break;
+
+					case SCANNED:
+						break;
+				}
+			}
+		}
+
+		// Spent resources
+		water = water - (colonists + greenhouse);
+		food = food - colonists;
+		energy = energy - (waterPumps + greenhouse + mines);
+
+		// Add scans per solar arrays
+		scans += solarArrays;
+
+		// For smaller scope, determine end
+		if (builds < 1) {
+			if (water > 0 && food > 0 && energy > 0) {
+				showTitle("You have survived the mission!");
+				gameMessage = "We're at a point where we can generate enough food and water to last our mission! Great work!<br><br>You Win!";
+			}
+			else if (water < 1 || food < 1 || energy < 1) {
+				showTitle("Mission failed");
+				if (water < 1 && food < 1) {
+					gameMessage = "Thirsty and starved, there is no hope for us...";
+				}
+				else if (water < 1) {
+					gameMessage = "We won't survive these barren wastes any longer...";
+				}
+				else if (food < 1) {
+					gameMessage = "So hungry, and our reserves won't last us...";
+				}
+				else {
+					gameMessage = "There's not enough energy to power anything! We won't last like this...";
+				}
+				gameMessage += "<br><br>GAME OVER";
+			}
+			renderHud();
+
+			stageover.style.display = "block";
+		}
+	} // end resources()
+
+	function haveOre() {
+		// Check if there's ore left
+		if (ore > 0) { return true; }
+		else { gameMessage = "We need ore from mining to build more."; }
+	}
+
+	function showTitle(text) {
+		title.innerHTML = text;
+
+		// Animate title
+		setTimeout(function () { title.style.marginTop = 200 + "px"; }, 100)
+		//title.style.marginTop = 200 + "px";
+		setTimeout(function () { title.style.marginTop = -200 + "px"; }, 2500);
+
+		//Reset
+		title.style.display = "none";
+		title.style.marginTop = 3000 + "px";
+		title.style.display = "block";
+
+	} // end title()
+
+	function enableButtons() {
+		document.getElementById("btnScan").disabled = false;
+		document.getElementById("btnBuild").disabled = false;
+		document.getElementById("btnWater").disabled = false;
+		document.getElementById("btnSolar").disabled = false;
+		document.getElementById("btnGreen").disabled = false;
+		document.getElementById("btnMine").disabled = false;
+	}
+
+	function disableButtons() {
+		document.getElementById("btnScan").disabled = true;
+		document.getElementById("btnBuild").disabled = true;
+		document.getElementById("btnWater").disabled = true;
+		document.getElementById("btnSolar").disabled = true;
+		document.getElementById("btnGreen").disabled = true;
+		document.getElementById("btnMine").disabled = true;
+	}
 </script>
+
 </html>
